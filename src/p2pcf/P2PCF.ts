@@ -140,7 +140,7 @@ export class P2PCF extends EventEmitter {
     this._rtcConfig = options.rtcConfig;
     this._stunIceServers = options.stunIceServers || DEFAULT_STUN_ICE;
     this._turnIceServers = options.turnIceServers || DEFAULT_TURN_ICE;
-    this._pollingInterval = options.pollingInterval || 3000;
+    this._pollingInterval = options.pollingInterval || 9000;
 
     this._sessionId = generateSessionId();
     // contextId will be loaded asynchronously in start() - use temporary value for now
@@ -963,7 +963,7 @@ export class P2PCF extends EventEmitter {
     if (dc) {
       try {
         dc.close();
-      } catch (e) {}
+      } catch (e) { }
       this._dataChannels.delete(sessionId);
     }
 
@@ -971,7 +971,7 @@ export class P2PCF extends EventEmitter {
     if (pc) {
       try {
         pc.close();
-      } catch (e) {}
+      } catch (e) { }
       this._connections.delete(sessionId);
     }
 

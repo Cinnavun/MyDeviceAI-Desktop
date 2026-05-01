@@ -39,7 +39,7 @@ export interface P2PCFOptions {
 
   /**
    * Polling interval in milliseconds
-   * @default 3000
+   * @default 9000
    */
   pollingInterval?: number;
 }

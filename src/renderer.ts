@@ -227,7 +227,7 @@ function createP2PCFClient(roomId: string): P2PCF {
     | { t: 'reasoning_token'; id: string; tok: string }
     | { t: 'end'; id: string }
     | { t: 'error'; id: string; message: string }
-    | { t: string; [k: string]: any };
+    | { t: string;[k: string]: any };
 
   async function sendJsonSafe(peer: Peer, msg: P2PMessage): Promise<void> {
     try {
@@ -432,7 +432,7 @@ function createP2PCFClient(roomId: string): P2PCF {
           // Handle SSE format: lines start with "data: "
           if (line.startsWith('data: ')) {
             const jsonStr = line.slice(6); // Remove "data: " prefix
-            
+
             // SSE streams often end with "data: [DONE]"
             if (jsonStr === '[DONE]') {
               await sendJsonSafe(peer, { t: 'end', id });
@@ -657,12 +657,12 @@ declare global {
       installLatest?: (
         onProgress?: (p: {
           type:
-            | 'status'
-            | 'download-start'
-            | 'download-progress'
-            | 'download-complete'
-            | 'install-complete'
-            | 'error';
+          | 'status'
+          | 'download-start'
+          | 'download-progress'
+          | 'download-complete'
+          | 'install-complete'
+          | 'error';
           message?: string;
           url?: string;
           totalBytes?: number;
@@ -1037,16 +1037,15 @@ function renderSetupScreen() {
         } = { installed: false, error: err?.message || String(err) };
         return fallback;
       })) as {
-      installed: boolean;
-      version?: string;
-      binaryPath?: string;
-      error?: string;
-    };
+        installed: boolean;
+        version?: string;
+        binaryPath?: string;
+        error?: string;
+      };
 
     if (result.installed) {
-      statusLine.textContent = `Setup complete. llama.cpp ${
-        result.version || ''
-      } is ready. Launching app...`;
+      statusLine.textContent = `Setup complete. llama.cpp ${result.version || ''
+        } is ready. Launching app...`;
       progressBar.style.width = '100%';
       setTimeout(() => {
         renderMainUI();
@@ -1144,12 +1143,12 @@ declare global {
         handler: (p: {
           id: string;
           type:
-            | 'status'
-            | 'download-start'
-            | 'download-progress'
-            | 'download-complete'
-            | 'install-complete'
-            | 'error';
+          | 'status'
+          | 'download-start'
+          | 'download-progress'
+          | 'download-complete'
+          | 'install-complete'
+          | 'error';
           message?: string;
           url?: string;
           totalBytes?: number;
@@ -1311,9 +1310,8 @@ function buildModelManagementUI() {
       const meta = document.createElement('div');
       meta.style.fontSize = '10px';
       meta.style.color = 'var(--md-text-muted)';
-      meta.textContent = `${
-        m.installed ? 'installed' : 'not installed'
-      }${activeModelId === m.id ? ' • active' : ''}`;
+      meta.textContent = `${m.installed ? 'installed' : 'not installed'
+        }${activeModelId === m.id ? ' • active' : ''}`;
 
       row.appendChild(name);
       row.appendChild(meta);
@@ -1321,7 +1319,7 @@ function buildModelManagementUI() {
       // Highlight active model with distinct styling
       const isActive = activeModelId === m.id;
       const isSelected = m.id === currentSelectedId;
-      
+
       if (isActive && isSelected) {
         // Active AND selected - show both highlights
         row.style.background = 'linear-gradient(135deg, var(--md-accent-soft), rgba(168, 85, 247, 0.14))';
@@ -1344,7 +1342,7 @@ function buildModelManagementUI() {
       row.onmouseenter = () => {
         const isActive = activeModelId === m.id;
         const isSelected = m.id === currentSelectedId;
-        
+
         if (!isSelected && !isActive) {
           row.style.background = 'rgba(15, 23, 42, 0.9)';
           row.style.borderColor = 'var(--md-border-strong)';
@@ -1354,7 +1352,7 @@ function buildModelManagementUI() {
       row.onmouseleave = () => {
         const isActive = activeModelId === m.id;
         const isSelected = m.id === currentSelectedId;
-        
+
         if (isActive && isSelected) {
           row.style.background = 'linear-gradient(135deg, var(--md-accent-soft), rgba(168, 85, 247, 0.14))';
           row.style.border = '2px solid var(--md-accent)';
@@ -1411,9 +1409,8 @@ function buildModelManagementUI() {
     statusEl.style.fontSize = '11px';
     statusEl.style.marginBottom = '8px';
     statusEl.style.color = 'var(--md-text-muted)';
-    statusEl.textContent = `${
-      model.installed ? 'Installed' : 'Not installed'
-    }${activeModelId === model.id ? ' • Active model' : ''}`;
+    statusEl.textContent = `${model.installed ? 'Installed' : 'Not installed'
+      }${activeModelId === model.id ? ' • Active model' : ''}`;
 
     const paramsForm = document.createElement('div');
     paramsForm.style.display = 'grid';
@@ -1508,7 +1505,7 @@ function buildModelManagementUI() {
     setActiveBtn.onclick = async () => {
       if (!window.modelManager?.setActive) return;
       if (setActiveBtn.disabled) return;
-      
+
       uiLog.info('Setting active model', { id: model.id });
       const res = await window.modelManager.setActive(model.id);
       if (!res.ok) {
@@ -1550,12 +1547,12 @@ function buildModelManagementUI() {
       const confirmed = confirm(
         `Are you sure you want to delete "${model.displayName || model.id}"?\n\nThis will permanently remove the model file from your system.`
       );
-      
+
       if (!confirmed) return;
 
       uiLog.info('Deleting model', { id: model.id });
       const res = await window.modelManager.deleteModel(model.id);
-      
+
       if (!res.ok) {
         const errorMsg = document.createElement('div');
         errorMsg.style.color = '#b91c1c';
@@ -1696,7 +1693,7 @@ function buildDownloadModelsUI() {
   hfStatus.style.fontSize = '11px';
   hfStatus.style.color = 'var(--md-text-muted)';
   hfStatus.style.minHeight = '18px';
-  
+
   const progressBarContainer = document.createElement('div');
   progressBarContainer.id = 'md-download-progress-container';
   progressBarContainer.style.width = '100%';
@@ -1714,7 +1711,7 @@ function buildDownloadModelsUI() {
   progressBarFill.style.background = 'var(--md-accent)';
   progressBarFill.style.boxShadow = '0 0 8px var(--md-accent)';
   progressBarFill.style.transition = 'width 0.2s ease';
-  
+
   progressBarContainer.appendChild(progressBarFill);
 
   hfCard.appendChild(hfTitle);
@@ -1745,7 +1742,7 @@ function buildDownloadModelsUI() {
         progressBarFill.style.width = '0%';
         hfStatus.textContent = `Downloading ${p.id}...`;
         hfStatus.style.color = 'var(--md-accent)';
-        
+
         // Add cancel button
         const existingCancelBtn = document.getElementById('md-cancel-download-btn');
         if (!existingCancelBtn) {
@@ -1756,18 +1753,18 @@ function buildDownloadModelsUI() {
           cancelBtn.style.fontSize = '11px';
           cancelBtn.style.color = 'var(--md-danger)';
           cancelBtn.style.marginTop = '4px';
-          
+
           cancelBtn.onclick = async () => {
             if (!window.modelManager?.cancelDownload || !currentDownloadId) return;
-            
+
             const confirmed = confirm('Are you sure you want to cancel this download?');
             if (!confirmed) return;
-            
+
             cancelBtn.disabled = true;
             cancelBtn.textContent = 'Cancelling...';
-            
+
             const result = await window.modelManager.cancelDownload(currentDownloadId);
-            
+
             if (result.ok) {
               hfStatus.textContent = 'Download cancelled';
               hfStatus.style.color = 'var(--md-text-muted)';
@@ -1781,7 +1778,7 @@ function buildDownloadModelsUI() {
               hfStatus.style.color = 'var(--md-danger)';
             }
           };
-          
+
           hfStatus.parentElement?.insertBefore(cancelBtn, hfStatus.nextSibling);
         }
       } else if (p.type === 'download-progress' && p.totalBytes) {
@@ -1795,20 +1792,20 @@ function buildDownloadModelsUI() {
         hfStatus.textContent = `Download complete for ${p.id}. Model is now available!`;
         hfStatus.style.color = 'var(--md-accent)';
         currentDownloadId = null;
-        
+
         // Remove cancel button
         const cancelBtn = document.getElementById('md-cancel-download-btn');
         if (cancelBtn) cancelBtn.remove();
-        
+
         setTimeout(() => {
           progressBarContainer.style.display = 'none';
-        }, 3000);
+        }, 9000);
       } else if (p.type === 'error') {
         progressBarContainer.style.display = 'none';
         hfStatus.textContent = `Error downloading ${p.id}: ${p.message || ''}`;
         hfStatus.style.color = 'var(--md-danger)';
         currentDownloadId = null;
-        
+
         // Remove cancel button
         const cancelBtn = document.getElementById('md-cancel-download-btn');
         if (cancelBtn) cancelBtn.remove();
@@ -1823,21 +1820,21 @@ function buildDownloadModelsUI() {
     const q = hfSearchInput.value || '';
     hfResults.innerHTML = '<div style="color: var(--md-text-muted);">Searching...</div>';
     hfStatus.textContent = '';
-    
+
     const res = await window.modelManager.searchHfGguf(q);
     if (!res.ok) {
       hfResults.innerHTML = `<div style="color: var(--md-danger);">Search error: ${(res as { ok: false; error: string }).error}</div>`;
       return;
     }
-    
+
     const results = res.results || [];
     hfResults.innerHTML = '';
-    
+
     if (!results.length) {
       hfResults.innerHTML = '<div style="color: var(--md-text-muted);">No GGUF models found. Try a different search term.</div>';
       return;
     }
-    
+
     results.forEach((m: any) => {
       const row = document.createElement('div');
       row.style.padding = '8px 10px';
@@ -1988,19 +1985,18 @@ function buildDownloadModelsUI() {
               actionEl.disabled = true;
               actionEl.textContent = 'Downloading...';
               actionEl.style.opacity = '0.6';
-              
+
               hfStatus.textContent = `Starting download for ${m.id} / ${fileName}...`;
               hfStatus.style.color = 'var(--md-accent)';
-              
+
               const result = await window.modelManager!.downloadHf({
                 repoId: m.id,
                 fileName,
               });
 
               if (!result.ok) {
-                hfStatus.textContent = `Download failed: ${
-                  result.error || 'unknown error'
-                }`;
+                hfStatus.textContent = `Download failed: ${result.error || 'unknown error'
+                  }`;
                 hfStatus.style.color = 'var(--md-danger)';
                 actionEl.disabled = false;
                 actionEl.textContent = 'Retry';
@@ -2018,9 +2014,8 @@ function buildDownloadModelsUI() {
           });
         } catch (err: any) {
           console.error('[ModelManager] Error loading HF GGUF files via IPC', err);
-          hfStatus.textContent = `Error loading files for ${m.id}: ${
-            err?.message || String(err)
-          }`;
+          hfStatus.textContent = `Error loading files for ${m.id}: ${err?.message || String(err)
+            }`;
           hfStatus.style.color = 'var(--md-danger)';
         }
       };
@@ -2197,11 +2192,10 @@ class StatusBarComponent {
   private updateStatusPill(text: string, variant: 'muted' | 'ok' | 'warn'): void {
     if (!this.elements.statusPill) return;
     this.elements.statusPill.textContent = text;
-    this.elements.statusPill.className = `md-pill ${
-      variant === 'ok' ? 'md-pill-ok' :
-      variant === 'warn' ? 'md-pill-warn' :
-      'md-pill-muted'
-    }`;
+    this.elements.statusPill.className = `md-pill ${variant === 'ok' ? 'md-pill-ok' :
+        variant === 'warn' ? 'md-pill-warn' :
+          'md-pill-muted'
+      }`;
   }
 
   toggle(): void {
