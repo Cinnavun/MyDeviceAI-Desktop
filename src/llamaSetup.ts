@@ -53,7 +53,7 @@ export type LlamaSetupProgress =
 
 const OWNER = 'ggml-org';
 const REPO = 'llama.cpp';
-const LLAMA_VERSION = 'b7306'; // Pin to specific version
+const LLAMA_VERSION = 'b8994'; // Pin to specific version
 const RELEASES_API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${LLAMA_VERSION}`;
 
 // Qwen3-4B GGUF (default model)
@@ -415,50 +415,50 @@ async function downloadFile(
 * Note: Ubuntu uses tar.gz archives, not zip (see extractTarGz function).
 */
 async function extractZip(assetPath: string, targetDir: string): Promise<void> {
- ensureDirSync(targetDir);
- logDebug('Extracting llama.cpp zip archive', { assetPath, targetDir });
+  ensureDirSync(targetDir);
+  logDebug('Extracting llama.cpp zip archive', { assetPath, targetDir });
 
- // On macOS, use native unzip to preserve permissions, extended attributes,
- // and code signing that are critical for dylib files
- if (process.platform === 'darwin') {
-   // eslint-disable-next-line @typescript-eslint/no-var-requires
-   const { execFile } = require('child_process');
-   // eslint-disable-next-line @typescript-eslint/no-var-requires
-   const { promisify } = require('util');
-   const execFileAsync = promisify(execFile);
+  // On macOS, use native unzip to preserve permissions, extended attributes,
+  // and code signing that are critical for dylib files
+  if (process.platform === 'darwin') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { execFile } = require('child_process');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { promisify } = require('util');
+    const execFileAsync = promisify(execFile);
 
-   try {
-     // -o: overwrite files without prompting
-     // -q: quiet mode
-     // -d: extract to directory
-     await execFileAsync('unzip', ['-o', '-q', assetPath, '-d', targetDir]);
-     logDebug('Zip extraction completed (native unzip)', { assetPath, targetDir });
-     return;
-   } catch (err) {
-     logError('Native unzip failed, falling back to unzipper', err);
-     // Continue to fallback below
-   }
- }
+    try {
+      // -o: overwrite files without prompting
+      // -q: quiet mode
+      // -d: extract to directory
+      await execFileAsync('unzip', ['-o', '-q', assetPath, '-d', targetDir]);
+      logDebug('Zip extraction completed (native unzip)', { assetPath, targetDir });
+      return;
+    } catch (err) {
+      logError('Native unzip failed, falling back to unzipper', err);
+      // Continue to fallback below
+    }
+  }
 
- // Use unzipper for Linux/Windows or if native unzip fails on macOS
- // eslint-disable-next-line @typescript-eslint/no-var-requires
- const unzipper = require('unzipper') as typeof import('unzipper');
+  // Use unzipper for Linux/Windows or if native unzip fails on macOS
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const unzipper = require('unzipper') as typeof import('unzipper');
 
- return new Promise<void>((resolve, reject) => {
-   const directory = unzipper.Extract({ path: targetDir });
+  return new Promise<void>((resolve, reject) => {
+    const directory = unzipper.Extract({ path: targetDir });
 
-   directory.on('close', () => {
-     logDebug('Zip extraction completed (unzipper)', { assetPath, targetDir });
-     resolve();
-   });
+    directory.on('close', () => {
+      logDebug('Zip extraction completed (unzipper)', { assetPath, targetDir });
+      resolve();
+    });
 
-   directory.on('error', (err: Error) => {
-     logError('Zip extraction failed', err, { assetPath, targetDir });
-     reject(err);
-   });
+    directory.on('error', (err: Error) => {
+      logError('Zip extraction failed', err, { assetPath, targetDir });
+      reject(err);
+    });
 
-   fs.createReadStream(assetPath).pipe(directory);
- });
+    fs.createReadStream(assetPath).pipe(directory);
+  });
 }
 
 /**
@@ -502,152 +502,152 @@ async function extractTarGz(assetPath: string, targetDir: string): Promise<void>
 * - Otherwise, fall back to assetPath to match previous behavior.
 */
 async function inferBinaryPathFromAsset(
- assetPath: string,
- platform: Platform,
+  assetPath: string,
+  platform: Platform,
 ): Promise<string> {
- const lower = assetPath.toLowerCase();
+  const lower = assetPath.toLowerCase();
 
- // Raw Windows executable
- if (platform === 'windows' && lower.endsWith('.exe')) {
-   return assetPath;
- }
+  // Raw Windows executable
+  if (platform === 'windows' && lower.endsWith('.exe')) {
+    return assetPath;
+  }
 
- // Zip archives: extract then search for llama-server
- if (lower.endsWith('.zip')) {
-   const extractRoot = INSTALL_DIR;
-   await extractZip(assetPath, extractRoot);
+  // Zip archives: extract then search for llama-server
+  if (lower.endsWith('.zip')) {
+    const extractRoot = INSTALL_DIR;
+    await extractZip(assetPath, extractRoot);
 
-   // Expected: llama-{version}-bin-ubuntu-vulkan-x64/build/bin/llama-server
-   const entries = fs.readdirSync(extractRoot);
-   for (const entry of entries) {
-     const full = path.join(extractRoot, entry);
-     if (!fs.statSync(full).isDirectory()) continue;
+    // Expected: llama-{version}-bin-ubuntu-vulkan-x64/build/bin/llama-server
+    const entries = fs.readdirSync(extractRoot);
+    for (const entry of entries) {
+      const full = path.join(extractRoot, entry);
+      if (!fs.statSync(full).isDirectory()) continue;
 
-     const buildBin = path.join(full, 'build', 'bin');
-     if (fs.existsSync(buildBin) && fs.statSync(buildBin).isDirectory()) {
-       const binEntries = fs.readdirSync(buildBin);
-       for (const be of binEntries) {
-         const candidate = path.join(buildBin, be);
-         const name = be.toLowerCase();
-         if (
-           fs.statSync(candidate).isFile() &&
-           (name === 'llama-server' || name === 'llama-server.exe')
-         ) {
-           try {
-             fs.chmodSync(candidate, 0o755);
-           } catch {
-             // best-effort; ignore chmod failures on non-POSIX
-           }
-           logDebug('Resolved llama-server binary inside archive', {
-             assetPath,
-             candidate,
-           });
-           return candidate;
-         }
-       }
-     }
-   }
+      const buildBin = path.join(full, 'build', 'bin');
+      if (fs.existsSync(buildBin) && fs.statSync(buildBin).isDirectory()) {
+        const binEntries = fs.readdirSync(buildBin);
+        for (const be of binEntries) {
+          const candidate = path.join(buildBin, be);
+          const name = be.toLowerCase();
+          if (
+            fs.statSync(candidate).isFile() &&
+            (name === 'llama-server' || name === 'llama-server.exe')
+          ) {
+            try {
+              fs.chmodSync(candidate, 0o755);
+            } catch {
+              // best-effort; ignore chmod failures on non-POSIX
+            }
+            logDebug('Resolved llama-server binary inside archive', {
+              assetPath,
+              candidate,
+            });
+            return candidate;
+          }
+        }
+      }
+    }
 
-   // Fallback: recursive search under extractRoot
-   const stack: string[] = [extractRoot];
-   while (stack.length) {
-     const dir = stack.pop() as string;
-     const children = fs.readdirSync(dir);
-     for (const child of children) {
-       const full = path.join(dir, child);
-       const stat = fs.statSync(full);
-       if (stat.isDirectory()) {
-         stack.push(full);
-       } else if (stat.isFile()) {
-         const name = child.toLowerCase();
-         if (name === 'llama-server' || name === 'llama-server.exe') {
-           try {
-             fs.chmodSync(full, 0o755);
-           } catch {
-             // ignore chmod errors
-           }
-           logDebug('Resolved llama-server binary via recursive search', {
-             assetPath,
-             candidate: full,
-           });
-           return full;
-         }
-       }
-     }
-   }
+    // Fallback: recursive search under extractRoot
+    const stack: string[] = [extractRoot];
+    while (stack.length) {
+      const dir = stack.pop() as string;
+      const children = fs.readdirSync(dir);
+      for (const child of children) {
+        const full = path.join(dir, child);
+        const stat = fs.statSync(full);
+        if (stat.isDirectory()) {
+          stack.push(full);
+        } else if (stat.isFile()) {
+          const name = child.toLowerCase();
+          if (name === 'llama-server' || name === 'llama-server.exe') {
+            try {
+              fs.chmodSync(full, 0o755);
+            } catch {
+              // ignore chmod errors
+            }
+            logDebug('Resolved llama-server binary via recursive search', {
+              assetPath,
+              candidate: full,
+            });
+            return full;
+          }
+        }
+      }
+    }
 
-   throw new Error(`llama-server binary not found in extracted archive: ${assetPath}`);
- }
+    throw new Error(`llama-server binary not found in extracted archive: ${assetPath}`);
+  }
 
- // Tar.gz archives: extract then search for llama-server
- if (lower.endsWith('.tar.gz')) {
-   const extractRoot = INSTALL_DIR;
-   await extractTarGz(assetPath, extractRoot);
+  // Tar.gz archives: extract then search for llama-server
+  if (lower.endsWith('.tar.gz')) {
+    const extractRoot = INSTALL_DIR;
+    await extractTarGz(assetPath, extractRoot);
 
-   // Expected: llama-{version}-bin-ubuntu-vulkan-x64/build/bin/llama-server
-   const entries = fs.readdirSync(extractRoot);
-   for (const entry of entries) {
-     const full = path.join(extractRoot, entry);
-     if (!fs.statSync(full).isDirectory()) continue;
+    // Expected: llama-{version}-bin-ubuntu-vulkan-x64/build/bin/llama-server
+    const entries = fs.readdirSync(extractRoot);
+    for (const entry of entries) {
+      const full = path.join(extractRoot, entry);
+      if (!fs.statSync(full).isDirectory()) continue;
 
-     const buildBin = path.join(full, 'build', 'bin');
-     if (fs.existsSync(buildBin) && fs.statSync(buildBin).isDirectory()) {
-       const binEntries = fs.readdirSync(buildBin);
-       for (const be of binEntries) {
-         const candidate = path.join(buildBin, be);
-         const name = be.toLowerCase();
-         if (
-           fs.statSync(candidate).isFile() &&
-           (name === 'llama-server' || name === 'llama-server.exe')
-         ) {
-           try {
-             fs.chmodSync(candidate, 0o755);
-           } catch {
-             // best-effort; ignore chmod failures on non-POSIX
-           }
-           logDebug('Resolved llama-server binary inside archive', {
-             assetPath,
-             candidate,
-           });
-           return candidate;
-         }
-       }
-     }
-   }
+      const buildBin = path.join(full, 'build', 'bin');
+      if (fs.existsSync(buildBin) && fs.statSync(buildBin).isDirectory()) {
+        const binEntries = fs.readdirSync(buildBin);
+        for (const be of binEntries) {
+          const candidate = path.join(buildBin, be);
+          const name = be.toLowerCase();
+          if (
+            fs.statSync(candidate).isFile() &&
+            (name === 'llama-server' || name === 'llama-server.exe')
+          ) {
+            try {
+              fs.chmodSync(candidate, 0o755);
+            } catch {
+              // best-effort; ignore chmod failures on non-POSIX
+            }
+            logDebug('Resolved llama-server binary inside archive', {
+              assetPath,
+              candidate,
+            });
+            return candidate;
+          }
+        }
+      }
+    }
 
-   // Fallback: recursive search under extractRoot
-   const stack: string[] = [extractRoot];
-   while (stack.length) {
-     const dir = stack.pop() as string;
-     const children = fs.readdirSync(dir);
-     for (const child of children) {
-       const full = path.join(dir, child);
-       const stat = fs.statSync(full);
-       if (stat.isDirectory()) {
-         stack.push(full);
-       } else if (stat.isFile()) {
-         const name = child.toLowerCase();
-         if (name === 'llama-server' || name === 'llama-server.exe') {
-           try {
-             fs.chmodSync(full, 0o755);
-           } catch {
-             // ignore chmod errors
-           }
-           logDebug('Resolved llama-server binary via recursive search', {
-             assetPath,
-             candidate: full,
-           });
-           return full;
-         }
-       }
-     }
-   }
+    // Fallback: recursive search under extractRoot
+    const stack: string[] = [extractRoot];
+    while (stack.length) {
+      const dir = stack.pop() as string;
+      const children = fs.readdirSync(dir);
+      for (const child of children) {
+        const full = path.join(dir, child);
+        const stat = fs.statSync(full);
+        if (stat.isDirectory()) {
+          stack.push(full);
+        } else if (stat.isFile()) {
+          const name = child.toLowerCase();
+          if (name === 'llama-server' || name === 'llama-server.exe') {
+            try {
+              fs.chmodSync(full, 0o755);
+            } catch {
+              // ignore chmod errors
+            }
+            logDebug('Resolved llama-server binary via recursive search', {
+              assetPath,
+              candidate: full,
+            });
+            return full;
+          }
+        }
+      }
+    }
 
-   throw new Error(`llama-server binary not found in extracted archive: ${assetPath}`);
- }
+    throw new Error(`llama-server binary not found in extracted archive: ${assetPath}`);
+  }
 
- // Non-zip assets: preserve previous behavior.
- return assetPath;
+  // Non-zip assets: preserve previous behavior.
+  return assetPath;
 }
 
 export async function getLlamaInstallStatus(): Promise<LlamaInstallStatus> {

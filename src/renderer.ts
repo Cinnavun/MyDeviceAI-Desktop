@@ -2193,8 +2193,8 @@ class StatusBarComponent {
     if (!this.elements.statusPill) return;
     this.elements.statusPill.textContent = text;
     this.elements.statusPill.className = `md-pill ${variant === 'ok' ? 'md-pill-ok' :
-        variant === 'warn' ? 'md-pill-warn' :
-          'md-pill-muted'
+      variant === 'warn' ? 'md-pill-warn' :
+        'md-pill-muted'
       }`;
   }
 
