@@ -39,21 +39,21 @@ function logPreloadError(
 */
 
 type LlamaChatMessage = {
- role: 'system' | 'user' | 'assistant';
- content: string;
+  role: 'system' | 'user' | 'assistant';
+  content: string;
 };
 
 type LlamaChatCompletionRequest = {
- messages: LlamaChatMessage[];
- model?: string;
- temperature?: number;
- max_tokens?: number;
+  messages: LlamaChatMessage[];
+  model?: string;
+  temperature?: number;
+  max_tokens?: number;
 };
 
 type LlamaChatChoice = {
- index: number;
- message: LlamaChatMessage;
- finish_reason: string | null;
+  index: number;
+  message: LlamaChatMessage;
+  finish_reason: string | null;
 };
 
 type LlamaChatCompletionResponse = {
@@ -142,34 +142,34 @@ async function llamaGetStatus(): Promise<LlamaStatus> {
       return null;
     });
 
-   if (!res) {
-     logPreloadError('llama.getStatus: no HTTP response from server', undefined, {
-       endpoint,
-     });
-     return {
-       ok: false,
-       endpoint,
-       error: 'No response from LlamaCPP server',
-     };
-   }
+    if (!res) {
+      logPreloadError('llama.getStatus: no HTTP response from server', undefined, {
+        endpoint,
+      });
+      return {
+        ok: false,
+        endpoint,
+        error: 'No response from LlamaCPP server',
+      };
+    }
 
-   const status: LlamaStatus = {
-     ok: res.ok,
-     endpoint,
-     error: res.ok
-       ? undefined
-       : `HTTP ${res.status} ${res.statusText}`,
-   };
-   logPreload('llama.getStatus HTTP probe result', status);
-   return status;
- } catch (error: any) {
-   logPreloadError('llama.getStatus threw', error);
-   return {
-     ok: false,
-     endpoint: DEFAULT_LLAMA_ENDPOINT,
-     error: error?.message || 'Unknown error',
-   };
- }
+    const status: LlamaStatus = {
+      ok: res.ok,
+      endpoint,
+      error: res.ok
+        ? undefined
+        : `HTTP ${res.status} ${res.statusText}`,
+    };
+    logPreload('llama.getStatus HTTP probe result', status);
+    return status;
+  } catch (error: any) {
+    logPreloadError('llama.getStatus threw', error);
+    return {
+      ok: false,
+      endpoint: DEFAULT_LLAMA_ENDPOINT,
+      error: error?.message || 'Unknown error',
+    };
+  }
 }
 
 // Expose a minimal API surface to the renderer.
@@ -404,12 +404,12 @@ contextBridge.exposeInMainWorld('modelManager', {
     handler: (p: {
       id: string;
       type:
-        | 'status'
-        | 'download-start'
-        | 'download-progress'
-        | 'download-complete'
-        | 'install-complete'
-        | 'error';
+      | 'status'
+      | 'download-start'
+      | 'download-progress'
+      | 'download-complete'
+      | 'install-complete'
+      | 'error';
       message?: string;
       url?: string;
       totalBytes?: number;
