@@ -517,14 +517,19 @@ async function inferBinaryPathFromAsset(
     const extractRoot = INSTALL_DIR;
     await extractZip(assetPath, extractRoot);
 
+    logDebug('Listing extracted entries', { extractRoot, entries: fs.readdirSync(extractRoot) });
+
     // Expected: llama-{version}-bin-ubuntu-vulkan-x64/build/bin/llama-server
     const entries = fs.readdirSync(extractRoot);
     for (const entry of entries) {
       const full = path.join(extractRoot, entry);
       if (!fs.statSync(full).isDirectory()) continue;
 
+      logDebug('Checking directory', { entry, full });
+
       const buildBin = path.join(full, 'build', 'bin');
       if (fs.existsSync(buildBin) && fs.statSync(buildBin).isDirectory()) {
+        logDebug('Found build/bin', { buildBin });
         const binEntries = fs.readdirSync(buildBin);
         for (const be of binEntries) {
           const candidate = path.join(buildBin, be);
@@ -545,10 +550,13 @@ async function inferBinaryPathFromAsset(
             return candidate;
           }
         }
+      } else {
+        logDebug('build/bin not found', { buildBin, exists: fs.existsSync(buildBin) });
       }
     }
 
     // Fallback: recursive search under extractRoot
+    logDebug('Starting recursive search for llama-server', { extractRoot });
     const stack: string[] = [extractRoot];
     while (stack.length) {
       const dir = stack.pop() as string;

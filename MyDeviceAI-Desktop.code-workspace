@@ -4,5 +4,18 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"search.useParentIgnoreFiles": true,
+		"editor.find.findOnType": true,
+		"files.autoGuessEncoding": true,
+		"search.defaultViewMode": "tree",
+		"search.quickAccess.preserveInput": true,
+		"search.quickOpen.includeSymbols": true,
+		"search.searchEditor.doubleClickBehaviour": "openLocationToSide",
+		"search.smartCase": true,
+		"search.searchView.keywordSuggestions": true,
+		"search.searchView.semanticSearchBehavior": "auto",
+		"notebook.defaultFormatter": "vscode.ipynb",
+		"github.copilot.chat.switchAgent.enabled": true
+	}
 }

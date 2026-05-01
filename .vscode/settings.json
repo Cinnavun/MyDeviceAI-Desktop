@@ -1,0 +1,6 @@
+{
+    "npm.enableRunFromFolder": true,
+    "react-native-tools.logLevel": "Debug",
+    "react-native-tools.networkInspector.consoleLogsColorTheme": "Dark",
+    "chat.mcp.serverSampling": {}
+}
